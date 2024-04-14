@@ -30,23 +30,21 @@ func New(storageURL string) (*Storage, error) {
 func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte) (int64, error) {
 	const op = "storage.postgres.SaveUser"
 
-	stmt, err := s.db.Prepare("INSERT INTO users(email, pass_hash) VALUES($1, $2)")
+	stmt, err := s.db.Prepare("INSERT INTO users(email, pass_hash) VALUES($1, $2) RETURNING id")
 	if err != nil {
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 
-	res, err := stmt.ExecContext(ctx, email, passHash)
+	row := stmt.QueryRowContext(ctx, email, passHash)
+
+	var id int64
+	err = row.Scan(&id)
 	if err != nil {
 		var pgErr *pq.Error
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
 			return 0, fmt.Errorf("%s: %w", op, storage.ErrUserExists)
 		}
 
-		return 0, fmt.Errorf("%s: %w", op, err)
-	}
-
-	id, err := res.LastInsertId()
-	if err != nil {
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 
@@ -116,7 +114,7 @@ func (s *Storage) IsAdmin(ctx context.Context, userID int64) (bool, error) {
 	err = row.Scan(&isAdmin)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return false, fmt.Errorf("%s: %w", op, storage.ErrUserNotFound)
+			return false, fmt.Errorf("%s: %w", op, storage.ErrAppNotFound)
 		}
 
 		return false, fmt.Errorf("%s: %w", op, err)
