@@ -2,7 +2,7 @@
 
 Proto file
 
-- Service to authorization
+- Authorization service
 
 ```
 service Auth {
