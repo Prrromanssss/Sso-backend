@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/Prrromanssss/sso-backend/internal/app"
 	"github.com/Prrromanssss/sso-backend/internal/config"
 	"github.com/Prrromanssss/sso-backend/internal/lib/logger/handlers/slogpretty"
 )
@@ -26,7 +27,9 @@ func main() {
 	)
 	log.Debug("debug messages are enabled")
 
-	// TODO: init app
+	application := app.New(log, cfg.GRPC.Port, cfg.StorageUrl, cfg.GRPC.Timeout)
+
+	application.GRPCSrv.MustRun()
 
 	// TODO: start gRPC-server for the app
 }
