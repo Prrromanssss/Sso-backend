@@ -1,11 +1,19 @@
-package sso
+package main
+
+import (
+	"fmt"
+
+	"github.com/Prrromanssss/sso-backend/internal/config"
+)
 
 func main() {
-	// TODO: init config object
+	cfg := config.MustLoad()
+
+	fmt.Println(cfg)
 
 	// TODO: init logger
 
 	// TODO: init app
 
-	// TODO: start gRPC-server of the app
+	// TODO: start gRPC-server for the app
 }
